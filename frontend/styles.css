@@ -1,0 +1,302 @@
+/* HunchLog custom styles — supplements Tailwind CDN */
+
+/* Skeleton shimmer */
+.skeleton {
+  background: linear-gradient(90deg, #E6E9F0 25%, #f0f2f7 50%, #E6E9F0 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+    background: #E6E9F0;
+  }
+}
+
+/* Probability slider */
+.slider-input {
+  -webkit-appearance: none;
+  appearance: none;
+  background: linear-gradient(to right, #0F766E var(--val, 70%), #E6E9F0 var(--val, 70%));
+  height: 6px;
+  border-radius: 9999px;
+  outline: none;
+  transition: background 0.05s;
+}
+
+.slider-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #0F766E;
+  border: 3px solid #ffffff;
+  box-shadow: 0 0 0 2px #0F766E, 0 2px 6px rgba(15,23,42,.15);
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+}
+
+.slider-input::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 0 4px rgba(15,118,110,0.18), 0 2px 6px rgba(15,23,42,.15);
+}
+
+.slider-input:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px rgba(15,118,110,0.3), 0 2px 6px rgba(15,23,42,.15);
+}
+
+.slider-input::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #0F766E;
+  border: 3px solid #ffffff;
+  box-shadow: 0 0 0 2px #0F766E;
+  cursor: pointer;
+}
+
+.slider-input::-moz-range-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: #E6E9F0;
+}
+
+/* Filter tabs */
+.filter-tab {
+  color: #64748B;
+  background: transparent;
+}
+
+.filter-tab.active {
+  background: #FFFFFF;
+  color: #0F172A;
+  box-shadow: 0 1px 4px rgba(15,23,42,.08);
+}
+
+.filter-tab:hover:not(.active) {
+  color: #0F172A;
+}
+
+.filter-tab:focus {
+  outline: 2px solid #0F766E;
+  outline-offset: 1px;
+}
+
+/* Category chips */
+.cat-chip.selected {
+  background: #CCFBF1;
+  border-color: #0F766E;
+  color: #0F766E;
+  font-weight: 500;
+}
+
+/* Stat card */
+.stat-card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(15,23,42,.06);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Due pill pulse */
+.due-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(217, 119, 6, 0.1);
+  color: #D97706;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.due-pill.pulsing {
+  animation: pulse_soft 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .due-pill.pulsing {
+    animation: none;
+  }
+}
+
+/* Prediction row */
+.prediction-row {
+  background: #FFFFFF;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(15,23,42,.06);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: box-shadow 0.15s, transform 0.15s;
+  border: 1px solid #E6E9F0;
+}
+
+.prediction-row:hover {
+  box-shadow: 0 12px 40px rgba(15,23,42,.1);
+  transform: translateY(-1px);
+}
+
+.prediction-row:focus {
+  outline: 2px solid #0F766E;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prediction-row {
+    transition: none;
+  }
+  .prediction-row:hover {
+    transform: none;
+  }
+}
+
+/* Status badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+
+.badge-open {
+  background: rgba(217, 119, 6, 0.12);
+  color: #D97706;
+}
+
+.badge-due {
+  background: rgba(217, 119, 6, 0.2);
+  color: #B45309;
+}
+
+.badge-correct {
+  background: rgba(22, 163, 74, 0.12);
+  color: #16A34A;
+}
+
+.badge-wrong {
+  background: rgba(225, 29, 72, 0.12);
+  color: #E11D48;
+}
+
+/* Due resolve card */
+.due-card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(15,23,42,.06);
+  border: 1px solid #E6E9F0;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .due-card {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.resolve-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 10px;
+  transition: background 0.15s, transform 0.1s;
+  border: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.resolve-btn:focus {
+  outline: 2px solid;
+  outline-offset: 2px;
+}
+
+.resolve-btn-hit {
+  background: rgba(22, 163, 74, 0.1);
+  color: #16A34A;
+}
+
+.resolve-btn-hit:focus {
+  outline-color: #16A34A;
+}
+
+.resolve-btn-hit:hover {
+  background: rgba(22, 163, 74, 0.2);
+}
+
+.resolve-btn-miss {
+  background: rgba(225, 29, 72, 0.1);
+  color: #E11D48;
+}
+
+.resolve-btn-miss:focus {
+  outline-color: #E11D48;
+}
+
+.resolve-btn-miss:hover {
+  background: rgba(225, 29, 72, 0.2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .resolve-btn {
+    transition: none;
+  }
+}
+
+/* Modal transitions */
+#modal-overlay, #detail-overlay {
+  transition: opacity 0.15s;
+}
+
+#modal-overlay.hidden, #detail-overlay.hidden {
+  display: none;
+}
+
+/* Fade in for newly added items */
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeSlideIn 0.2s ease forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-in {
+    animation: none;
+  }
+}
+
+/* Celebrate flash */
+@keyframes celebrateFlash {
+  0% { background: #CCFBF1; }
+  100% { background: #FFFFFF; }
+}
+
+.celebrate {
+  animation: celebrateFlash 0.6s ease forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .celebrate {
+    animation: none;
+  }
+}
