@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HunchLog — Personal Calibration Journal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg: '#F7F8FB',
+            surface: '#FFFFFF',
+            ink: '#0F172A',
+            muted: '#64748B',
+            border: '#E6E9F0',
+            brand: '#0F766E',
+            'brand-soft': '#CCFBF1',
+            hit: '#16A34A',
+            miss: '#E11D48',
+            pending: '#D97706',
+          },
+          fontFamily: {
+            display: ['Sora', 'sans-serif'],
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          boxShadow: {
+            card: '0 8px 30px rgba(15,23,42,.06)',
+          },
+          borderRadius: {
+            card: '16px',
+            control: '10px',
+          },
+          keyframes: {
+            shimmer: {
+              '0%': { backgroundPosition: '-400px 0' },
+              '100%': { backgroundPosition: '400px 0' },
+            },
+            pulse_soft: {
+              '0%, 100%': { opacity: '1' },
+              '50%': { opacity: '0.65' },
+            },
+          },
+          animation: {
+            shimmer: 'shimmer 1.4s ease infinite',
+            pulse_soft: 'pulse_soft 2s ease-in-out infinite',
+          },
+        },
+      },
+    }
+  </script>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body class="bg-bg font-sans text-ink min-h-screen">
+
+  <!-- App Shell -->
+  <div id="app" class="max-w-4xl mx-auto px-4 py-10 pb-24">
+
+    <!-- Hero -->
+    <header class="mb-8">
+      <h1 class="font-display text-4xl font-bold text-ink leading-tight">How calibrated are you?</h1>
+      <p class="text-muted mt-2 text-base">Log predictions, track outcomes, discover your true forecast ability.</p>
+    </header>
+
+    <!-- Stats Row (skeleton initially) -->
+    <section id="stats-row" class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8" aria-label="Summary statistics">
+      <div class="skeleton h-20 rounded-card"></div>
+      <div class="skeleton h-20 rounded-card"></div>
+      <div class="skeleton h-20 rounded-card"></div>
+      <div class="skeleton h-20 rounded-card"></div>
+    </section>
+
+    <!-- Calibration Chart -->
+    <section class="bg-surface rounded-card shadow-card p-6 mb-8">
+      <h2 class="font-display text-xl font-semibold text-ink mb-4">Calibration Chart</h2>
+      <div id="chart-container" class="relative" style="height:300px;">
+        <div id="chart-skeleton" class="skeleton w-full h-full rounded-control"></div>
+        <canvas id="calibration-chart" class="hidden"></canvas>
+      </div>
+      <p class="text-muted text-sm mt-3">Points above the diagonal = under-confident. Below = over-confident. On the line = perfect.</p>
+    </section>
+
+    <!-- Resolve Now Section -->
+    <section id="resolve-section" class="hidden mb-8">
+      <h2 class="font-display text-xl font-semibold text-ink mb-4 flex items-center gap-2">
+        <span>⏰</span> Resolve now
+      </h2>
+      <div id="due-list" class="space-y-3"></div>
+    </section>
+
+    <!-- New Prediction Button -->
+    <div class="flex justify-end mb-8">
+      <button
+        id="new-prediction-btn"
+        class="bg-brand text-white font-semibold px-6 py-3 rounded-control shadow-card hover:bg-teal-700 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2 focus:ring-offset-bg flex items-center gap-2"
+        aria-label="Create new prediction"
+      >
+        <span aria-hidden="true">+</span> New prediction
+      </button>
+    </div>
+
+    <!-- History Section -->
+    <section>
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-display text-xl font-semibold text-ink">History</h2>
+        <!-- Filter Tabs -->
+        <div id="filter-tabs" class="flex gap-1 bg-border/40 rounded-control p-1" role="tablist" aria-label="Filter predictions">
+          <button role="tab" aria-selected="true" data-filter="all" class="filter-tab active px-3 py-1.5 text-sm rounded-[8px] font-medium transition-colors duration-150">All</button>
+          <button role="tab" aria-selected="false" data-filter="open" class="filter-tab px-3 py-1.5 text-sm rounded-[8px] font-medium transition-colors duration-150">Open</button>
+          <button role="tab" aria-selected="false" data-filter="due" class="filter-tab px-3 py-1.5 text-sm rounded-[8px] font-medium transition-colors duration-150">Due</button>
+          <button role="tab" aria-selected="false" data-filter="correct" class="filter-tab px-3 py-1.5 text-sm rounded-[8px] font-medium transition-colors duration-150">Correct</button>
+          <button role="tab" aria-selected="false" data-filter="wrong" class="filter-tab px-3 py-1.5 text-sm rounded-[8px] font-medium transition-colors duration-150">Wrong</button>
+        </div>
+      </div>
+
+      <div id="history-list" class="space-y-2">
+        <div class="skeleton h-16 rounded-card"></div>
+        <div class="skeleton h-16 rounded-card"></div>
+        <div class="skeleton h-16 rounded-card"></div>
+      </div>
+
+      <!-- Empty state -->
+      <div id="empty-state" class="hidden text-center py-16">
+        <div class="text-5xl mb-4" aria-hidden="true">🔭</div>
+        <h3 class="font-display text-xl font-semibold text-ink mb-2">Your calibration journey starts here</h3>
+        <p class="text-muted max-w-xs mx-auto mb-6">Make your first prediction — anything from sports outcomes to project deadlines. Come back when it resolves to see how well you knew.</p>
+        <button
+          class="bg-brand text-white font-semibold px-5 py-2.5 rounded-control hover:bg-teal-700 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2"
+          onclick="document.getElementById('new-prediction-btn').click()"
+        >+ Make your first prediction</button>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- New Prediction Modal -->
+  <div id="modal-overlay" class="hidden fixed inset-0 bg-ink/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="bg-surface rounded-card shadow-card w-full max-w-lg p-8 relative">
+      <button
+        id="modal-close"
+        class="absolute top-4 right-4 text-muted hover:text-ink transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-brand rounded-control p-1"
+        aria-label="Close modal"
+      >
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+      <h2 id="modal-title" class="font-display text-2xl font-semibold text-ink mb-6">New prediction</h2>
+
+      <form id="prediction-form" novalidate>
+        <!-- Claim -->
+        <div class="mb-5">
+          <label for="claim-input" class="block text-sm font-medium text-ink mb-1.5">What do you predict?</label>
+          <textarea
+            id="claim-input"
+            rows="3"
+            placeholder="Bitcoin will close above $100k by Dec 31"
+            class="w-full rounded-control border border-border px-4 py-3 text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-brand transition-colors duration-150 resize-none"
+            required
+            aria-required="true"
+          ></textarea>
+          <p id="claim-error" class="hidden text-miss text-xs mt-1" role="alert"></p>
+        </div>
+
+        <!-- Probability Slider -->
+        <div class="mb-5">
+          <label class="block text-sm font-medium text-ink mb-2">How confident are you?</label>
+          <div class="flex items-center gap-4 mb-2">
+            <div class="flex-1 relative">
+              <input
+                type="range"
+                id="prob-slider"
+                min="0"
+                max="100"
+                value="70"
+                class="slider-input w-full h-2 rounded-full appearance-none cursor-pointer"
+                aria-label="Confidence percentage"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="70"
+              />
+            </div>
+            <div class="font-mono text-3xl font-semibold text-brand min-w-[4rem] text-right" id="prob-readout" aria-live="polite" aria-atomic="true">70%</div>
+          </div>
+          <div id="prob-hint" class="text-muted text-sm font-medium" aria-live="polite">fairly likely</div>
+        </div>
+
+        <!-- Resolve By -->
+        <div class="mb-5">
+          <label for="resolve-by" class="block text-sm font-medium text-ink mb-1.5">Resolve by</label>
+          <input
+            type="date"
+            id="resolve-by"
+            class="w-full rounded-control border border-border px-4 py-2.5 text-ink focus:outline-none focus:ring-2 focus:ring-brand transition-colors duration-150"
+            required
+            aria-required="true"
+          />
+          <p id="date-error" class="hidden text-miss text-xs mt-1" role="alert"></p>
+        </div>
+
+        <!-- Category Chips -->
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-ink mb-2">Category <span class="text-muted font-normal">(optional)</span></label>
+          <div id="category-chips" class="flex flex-wrap gap-2">
+            <button type="button" data-cat="Finance" class="cat-chip px-3 py-1 rounded-full text-sm border border-border text-muted hover:border-brand hover:text-brand transition-colors duration-150">Finance</button>
+            <button type="button" data-cat="Technology" class="cat-chip px-3 py-1 rounded-full text-sm border border-border text-muted hover:border-brand hover:text-brand transition-colors duration-150">Technology</button>
+            <button type="button" data-cat="Sports" class="cat-chip px-3 py-1 rounded-full text-sm border border-border text-muted hover:border-brand hover:text-brand transition-colors duration-150">Sports</button>
+            <button type="button" data-cat="Politics" class="cat-chip px-3 py-1 rounded-full text-sm border border-border text-muted hover:border-brand hover:text-brand transition-colors duration-150">Politics</button>
+            <button type="button" data-cat="Personal" class="cat-chip px-3 py-1 rounded-full text-sm border border-border text-muted hover:border-brand hover:text-brand transition-colors duration-150">Personal</button>
+            <button type="button" data-cat="Science" class="cat-chip px-3 py-1 rounded-full text-sm border border-border text-muted hover:border-brand hover:text-brand transition-colors duration-150">Science</button>
+          </div>
+          <input type="hidden" id="selected-category" value="" />
+        </div>
+
+        <p id="submit-error" class="hidden text-miss text-sm mb-3" role="alert"></p>
+
+        <button
+          type="submit"
+          id="submit-btn"
+          class="w-full bg-brand text-white font-semibold py-3 rounded-control hover:bg-teal-700 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          Log prediction
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Detail / Delete Panel -->
+  <div id="detail-overlay" class="hidden fixed inset-0 bg-ink/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="detail-title">
+    <div class="bg-surface rounded-card shadow-card w-full max-w-lg p-8 relative">
+      <button
+        id="detail-close"
+        class="absolute top-4 right-4 text-muted hover:text-ink transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-brand rounded-control p-1"
+        aria-label="Close detail"
+      >
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+      <h2 id="detail-title" class="font-display text-xl font-semibold text-ink mb-4 pr-8">Prediction detail</h2>
+      <div id="detail-body"></div>
+      <button
+        id="delete-btn"
+        class="mt-6 w-full border border-miss text-miss font-medium py-2.5 rounded-control hover:bg-miss/5 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-miss focus:ring-offset-2"
+        aria-label="Delete this prediction"
+      >
+        <span aria-hidden="true">🗑</span> Delete prediction
+      </button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/app.js" defer></script>
+</body>
+</html>
